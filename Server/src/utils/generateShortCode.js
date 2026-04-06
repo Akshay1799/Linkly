@@ -4,7 +4,7 @@ export const generateShortCode = ()=>{
     let code = "";
 
     for (let charIndex = 0; charIndex < 6; charIndex++) {
-        const randomIndex = Math.floor(Math.random()*chars.length())
+        const randomIndex = Math.floor(Math.random()*chars.length)
         code += chars[randomIndex]
     }
 

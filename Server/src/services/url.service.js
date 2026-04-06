@@ -1,6 +1,7 @@
 import { generateShortCode } from "../utils/generateShortCode.js";
+import Url from "../models/Url.model.js";
 
-export const createShortUrlService = (data) => {
+export const createShortUrlService = async(data) => {
   let shortCode;
 
   if (data.customAlias && data.customAlias.trim() !== "") {
@@ -9,8 +10,11 @@ export const createShortUrlService = (data) => {
     shortCode = generateShortCode();
   }
 
-  return {
+  const newUrl = new Url ({
     ...data,
     shortCode,
-  };
+  });
+
+  const savedUrl = await newUrl.save();
+  return savedUrl;
 };
