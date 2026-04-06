@@ -1,6 +1,16 @@
+import { generateShortCode } from "../utils/generateShortCode.js";
 
+export const createShortUrlService = (data) => {
+  let shortCode;
 
-export const createShortUrlService = (data)=>{
-    console.log("Service recieved: ",data);
-    return data;
-} 
+  if (data.customAlias && data.customAlias.trim() !== "") {
+    shortCode = data.customAlias;
+  } else {
+    shortCode = generateShortCode();
+  }
+
+  return {
+    ...data,
+    shortCode,
+  };
+};
