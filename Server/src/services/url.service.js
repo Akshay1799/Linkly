@@ -1,5 +1,6 @@
 import { generateShortCode } from "../utils/generateShortCode.js";
 import Url from "../models/Url.model.js";
+import { url } from "zod";
 
 export const createShortUrlService = async(data) => {
   let shortCode;
@@ -29,4 +30,16 @@ export const getUrlByShortCode = async(shortCode)=>{
 
   
   return originalUrl;
+}
+
+export const getUrlStats = async(shortCode)=>{
+
+  const url = await Url.findOne({shortCode})
+  if(!url) throw new Error('url does not exist');
+  
+  return{
+    originalUrl: url.originalUrl,
+    shortCode: url.shortCode,
+    totalClicks: url.totalClicks
+  }
 }
