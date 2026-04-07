@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const urlSchema = new mongoose.Schema({
     originalUrl: {type: String, required: true, trim: true},
     shortCode: {type: String, required: true, unique: true},
-    customAlias: {type: String, trim: true}
+    customAlias: {type: String, trim: true},
+    totalClicks: {type: Number, default:0}
 })
 
 const Url = mongoose.model('Url', urlSchema);

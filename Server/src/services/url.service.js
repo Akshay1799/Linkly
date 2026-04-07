@@ -20,7 +20,13 @@ export const createShortUrlService = async(data) => {
 };
 
 export const getUrlByShortCode = async(shortCode)=>{
-  let originalUrl = await Url.findOne({shortCode})
+  let originalUrl = await Url.findOneAndUpdate(
+    {shortCode},
+    {$inc : {totalClicks: 1}},
+    {new: true}
+  )
   if(!originalUrl) throw new Error('original URL does not exist!');
+
+  
   return originalUrl;
 }
