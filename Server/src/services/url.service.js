@@ -18,3 +18,9 @@ export const createShortUrlService = async(data) => {
   const savedUrl = await newUrl.save();
   return savedUrl;
 };
+
+export const getUrlByShortCode = async(shortCode)=>{
+  let originalUrl = await Url.findOne({shortCode})
+  if(!originalUrl) throw new Error('original URL does not exist!');
+  return originalUrl;
+}
