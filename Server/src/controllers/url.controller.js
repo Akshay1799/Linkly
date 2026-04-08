@@ -16,7 +16,12 @@ export const createShortUrl = async(req, res, next)=>{
 export const redirectToOriginalUrl = async(req, res, next)=>{
     try {
         let shortCode = req.params.shortCode;
-        let url = await getUrlByShortCode(shortCode);
+
+        const ip = req.headers["x-forwarded-for"] || req.ip;
+        const userAgent = req.headers["user-agent"];
+        const referrer = req.headers["referer"];
+
+        let url = await getUrlByShortCode(shortCode, {ip, userAgent, referrer});
         res.redirect(url.originalUrl);
     } catch (error) {
         next(error)

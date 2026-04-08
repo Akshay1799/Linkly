@@ -1,6 +1,6 @@
 import { generateShortCode } from "../utils/generateShortCode.js";
 import Url from "../models/Url.model.js";
-import { url } from "zod";
+import Click from "../models/Click.model.js"
 
 export const createShortUrlService = async(data) => {
   let shortCode;
@@ -20,7 +20,10 @@ export const createShortUrlService = async(data) => {
   return savedUrl;
 };
 
-export const getUrlByShortCode = async(shortCode)=>{
+export const getUrlByShortCode = async(shortCode, analyticsData)=>{
+  
+  const{ip, userAgent, referrer} = analyticsData;
+  
   let originalUrl = await Url.findOneAndUpdate(
     {shortCode},
     {$inc : {totalClicks: 1}},
@@ -28,7 +31,15 @@ export const getUrlByShortCode = async(shortCode)=>{
   )
   if(!originalUrl) throw new Error('original URL does not exist!');
 
-  
+  const newClick = await Click.create({
+    urlId: originalUrl._id,
+    shortCode,
+    ip,
+    device: userAgent,
+    referrer
+  })
+
+
   return originalUrl;
 }
 
@@ -37,9 +48,42 @@ export const getUrlStats = async(shortCode)=>{
   const url = await Url.findOne({shortCode})
   if(!url) throw new Error('url does not exist');
   
+  const recentClicks = await Click.find({shortCode}).sort({createdAt: -1}).limit(5);
+  const totalClicks = url.totalClicks;
+  
+  const deviceStatsRaw = await Click.aggregate([
+    {
+      $match: {shortCode}
+    },
+    {
+      $group:{
+        _id:{
+          $cond:[
+            {$regexMatch: {input: "$device", regex: /mobile/i}},
+            "mobile",
+            "desktop"
+          ]
+        },
+        count: {$sum : 1}
+    }}
+  ])
+   
+  let mobile = 0;
+  let desktop = 0;
+
+  deviceStatsRaw.forEach((stat)=>{
+    if(stat._id === "mobile") mobile = mobile.count;
+    if(stat._id === "desktop") desktop = desktop.count;
+  })
+
   return{
     originalUrl: url.originalUrl,
     shortCode: url.shortCode,
-    totalClicks: url.totalClicks
+    totalClicks,
+    recentClicks,
+    deviceStats:{
+      mobile, 
+      desktop
+    }
   }
 }
