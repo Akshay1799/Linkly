@@ -2,9 +2,9 @@ import { createShortUrlService, getUrlByShortCode, getUrlStats } from "../servic
 
 export const createShortUrl = async(req, res, next)=>{
     try {
-        const result =  await createShortUrlService(req.body);
+        const result =  await createShortUrlService(req.body, req.user.userId);
         
-        res.json({
+        res.status(201).json({
             message: "URL created successfully",
             data: result
         })

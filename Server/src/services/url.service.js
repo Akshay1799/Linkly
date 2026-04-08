@@ -3,7 +3,7 @@ import Url from "../models/Url.model.js";
 import Click from "../models/Click.model.js";
 import { parseUserAgent } from "../utils/parseUserAgent.js";
 
-export const createShortUrlService = async (data) => {
+export const createShortUrlService = async (data, userId) => {
   let shortCode;
 
   if (data.customAlias && data.customAlias.trim() !== "") {
@@ -15,6 +15,7 @@ export const createShortUrlService = async (data) => {
   const newUrl = new Url({
     ...data,
     shortCode,
+    userId
   });
 
   const savedUrl = await newUrl.save();
