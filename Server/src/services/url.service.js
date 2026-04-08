@@ -1,8 +1,8 @@
 import { generateShortCode } from "../utils/generateShortCode.js";
 import Url from "../models/Url.model.js";
-import Click from "../models/Click.model.js"
+import Click from "../models/Click.model.js";
 
-export const createShortUrlService = async(data) => {
+export const createShortUrlService = async (data) => {
   let shortCode;
 
   if (data.customAlias && data.customAlias.trim() !== "") {
@@ -11,7 +11,7 @@ export const createShortUrlService = async(data) => {
     shortCode = generateShortCode();
   }
 
-  const newUrl = new Url ({
+  const newUrl = new Url({
     ...data,
     shortCode,
   });
@@ -20,70 +20,91 @@ export const createShortUrlService = async(data) => {
   return savedUrl;
 };
 
-export const getUrlByShortCode = async(shortCode, analyticsData)=>{
-  
-  const{ip, userAgent, referrer} = analyticsData;
-  
+export const getUrlByShortCode = async (shortCode, analyticsData) => {
+  const { ip, userAgent, referrer } = analyticsData;
+
   let originalUrl = await Url.findOneAndUpdate(
-    {shortCode},
-    {$inc : {totalClicks: 1}},
-    {new: true}
-  )
-  if(!originalUrl) throw new Error('original URL does not exist!');
+    { shortCode },
+    { $inc: { totalClicks: 1 } },
+    { new: true },
+  );
+  if (!originalUrl) throw new Error("original URL does not exist!");
 
   const newClick = await Click.create({
     urlId: originalUrl._id,
     shortCode,
     ip,
     device: userAgent,
-    referrer
-  })
-
+    referrer,
+  });
 
   return originalUrl;
-}
+};
 
-export const getUrlStats = async(shortCode)=>{
+export const getUrlStats = async (shortCode) => {
+  const url = await Url.findOne({ shortCode });
+  if (!url) throw new Error("url does not exist");
 
-  const url = await Url.findOne({shortCode})
-  if(!url) throw new Error('url does not exist');
-  
-  const recentClicks = await Click.find({shortCode}).sort({createdAt: -1}).limit(5);
+  const recentClicks = await Click.find({ shortCode })
+    .sort({ createdAt: -1 })
+    .limit(5);
   const totalClicks = url.totalClicks;
-  
+
   const deviceStatsRaw = await Click.aggregate([
     {
-      $match: {shortCode}
+      $match: { shortCode },
     },
     {
-      $group:{
-        _id:{
-          $cond:[
-            {$regexMatch: {input: "$device", regex: /mobile/i}},
+      $group: {
+        _id: {
+          $cond: [
+            { $regexMatch: { input: "$device", regex: /mobile/i } },
             "mobile",
-            "desktop"
-          ]
+            "desktop",
+          ],
         },
-        count: {$sum : 1}
-    }}
-  ])
-   
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
   let mobile = 0;
   let desktop = 0;
 
-  deviceStatsRaw.forEach((stat)=>{
-    if(stat._id === "mobile") mobile = mobile.count;
-    if(stat._id === "desktop") desktop = desktop.count;
-  })
+  deviceStatsRaw.forEach((stat) => {
+    if (stat._id === "mobile") mobile = stat.count;
+    if (stat._id === "desktop") desktop = stat.count;
+  });
 
-  return{
+  const uniqueVisitorsResult = await Click.aggregate([
+    {
+      $match: { shortCode },
+      ip: {$ne:null}
+    },
+    {
+      $group: {
+        _id: "$ip",
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        uniqueVisitors: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const uniqueVisitors = uniqueVisitorsResult[0]?.uniqueVisitors || 0;
+
+  return {
     originalUrl: url.originalUrl,
     shortCode: url.shortCode,
     totalClicks,
     recentClicks,
-    deviceStats:{
-      mobile, 
-      desktop
-    }
-  }
-}
+    deviceStats: {
+      mobile,
+      desktop,
+    },
+    uniqueVisitors
+  };
+};
