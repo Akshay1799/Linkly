@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const clickSchema = new mongoose.Schema({
     urlId:{type:mongoose.Schema.Types.ObjectId, ref:"Url", required:true},
-    shortcode:{type:String,  required: true},
+    shortCode:{type:String,  required: true},
     device:{type:String},
     ip:{type:String},
     referrer:{type:String}
