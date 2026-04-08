@@ -5,6 +5,8 @@ const clickSchema = new mongoose.Schema({
     shortCode:{type:String,  required: true},
     device:{type:String},
     ip:{type:String},
+    browswer:{type:String},
+    os:{type:String},
     referrer:{type:String}
 },{timestamps:true})
 

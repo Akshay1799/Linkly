@@ -1,6 +1,7 @@
 import { generateShortCode } from "../utils/generateShortCode.js";
 import Url from "../models/Url.model.js";
 import Click from "../models/Click.model.js";
+import { parseUserAgent } from "../utils/parseUserAgent.js";
 
 export const createShortUrlService = async (data) => {
   let shortCode;
@@ -22,6 +23,7 @@ export const createShortUrlService = async (data) => {
 
 export const getUrlByShortCode = async (shortCode, analyticsData) => {
   const { ip, userAgent, referrer } = analyticsData;
+  const parsedData = await parseUserAgent(userAgent)
 
   let originalUrl = await Url.findOneAndUpdate(
     { shortCode },
@@ -34,7 +36,9 @@ export const getUrlByShortCode = async (shortCode, analyticsData) => {
     urlId: originalUrl._id,
     shortCode,
     ip,
-    device: userAgent,
+    browser: parsedData.browser,
+    device: parsedData.device,
+    os: parsedData.os,
     referrer,
   });
 
