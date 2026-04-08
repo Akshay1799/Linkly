@@ -78,8 +78,10 @@ export const getUrlStats = async (shortCode) => {
 
   const uniqueVisitorsResult = await Click.aggregate([
     {
-      $match: { shortCode },
-      ip: {$ne:null}
+      $match: {
+        shortCode,
+        ip: { $ne: null },
+      },
     },
     {
       $group: {
@@ -105,6 +107,6 @@ export const getUrlStats = async (shortCode) => {
       mobile,
       desktop,
     },
-    uniqueVisitors
+    uniqueVisitors,
   };
 };
