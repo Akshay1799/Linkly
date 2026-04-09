@@ -2,6 +2,7 @@ import { generateShortCode } from "../utils/generateShortCode.js";
 import Url from "../models/Url.model.js";
 import Click from "../models/Click.model.js";
 import { parseUserAgent } from "../utils/parseUserAgent.js";
+import { AppError } from "../utils/AppError.js";
 
 export const createShortUrlService = async (data, userId) => {
   let shortCode;
@@ -24,14 +25,14 @@ export const createShortUrlService = async (data, userId) => {
 
 export const getUrlByShortCode = async (shortCode, analyticsData) => {
   const { ip, userAgent, referrer } = analyticsData;
-  const parsedData = await parseUserAgent(userAgent)
+  const parsedData = parseUserAgent(userAgent)
 
   let originalUrl = await Url.findOneAndUpdate(
     { shortCode },
     { $inc: { totalClicks: 1 } },
     { new: true },
   );
-  if (!originalUrl) throw new Error("original URL does not exist!");
+  if (!originalUrl) throw new AppError(404, "original URL does not exist!");
 
   const newClick = await Click.create({
     urlId: originalUrl._id,
@@ -48,7 +49,7 @@ export const getUrlByShortCode = async (shortCode, analyticsData) => {
 
 export const getUrlStats = async (shortCode) => {
   const url = await Url.findOne({ shortCode });
-  if (!url) throw new Error("url does not exist");
+  if (!url) throw new AppError(404, "url does not exist");
 
   const recentClicks = await Click.find({ shortCode })
     .sort({ createdAt: -1 })
