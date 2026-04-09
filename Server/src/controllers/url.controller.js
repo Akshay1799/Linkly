@@ -10,7 +10,7 @@ export const createShortUrl = asyncHandler(async(req, res, next)=>{
     })
 })
 
-export const redirectToOriginalUrl = async(async(req, res)=>{
+export const redirectToOriginalUrl = asyncHandler(async(req, res)=>{
     let shortCode = req.params.shortCode;
 
     const ip = req.headers["x-forwarded-for"] || req.ip;
