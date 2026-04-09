@@ -1,5 +1,6 @@
-import {registerUserService, userLoginService} from "../services/auth.service.js";
+import {refreshAccessTokenService, registerUserService, userLoginService} from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import config from '../config/index.js'
 
 export const registerUser = asyncHandler(async(req, res)=>{
     const user = await registerUserService(req.body);
@@ -12,10 +13,42 @@ export const registerUser = asyncHandler(async(req, res)=>{
 
 export const login = asyncHandler(async(req, res)=>{
     const result = await userLoginService(req.body)
-    
-    res.status(200).json({
+    const {accessToken, refreshToken, user} = result;
+
+    res
+    .cookie("accessToken", accessToken , {
+        httpOnly: true,
+        secure: config.env === "production",
+        sameSite: "strict"
+    })
+    .cookie("refreshToken", refreshToken , {
+        httpOnly: true,
+        secure: config.env === "production",
+        sameSite: "strict"
+    })
+    .status(200).json({
         message: "Logged in successfully!",
-        data: result
+        data: user
     })
     
+})
+
+export const refreshToken = asyncHandler(async(req, res)=>{
+    const incomingToken = req.cookies.refreshToken;
+
+    const {accessToken, refreshToken} = await refreshAccessTokenService(incomingToken);
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly:true,
+        secure: config.env === "production",
+        sameSite:"strict"
+    })
+    .cookie("refreshToken", refreshToken, {
+        httpOnly:true,
+        secure: config.env === "production",
+        sameSite:"strict"
+    })
+    .status(200).json({
+        message: "Access token refreshed"
+    })
 })
