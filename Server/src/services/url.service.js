@@ -116,3 +116,12 @@ export const getUrlStats = async (shortCode) => {
     uniqueVisitors,
   };
 };
+
+export const getMyUrlsService = async({ userId, page, limit, sortBy, order })=>{
+
+  const skip = (page - 1) * limit;
+  const sort = {[sortBy]:order};
+
+  const urls = await Url.find({ userId }).sort(sort).skip(skip).limit(limit);
+  return urls;
+}

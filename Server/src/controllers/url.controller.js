@@ -1,4 +1,4 @@
-import { createShortUrlService, getUrlByShortCode, getUrlStats } from "../services/url.service.js";
+import { createShortUrlService, getMyUrlsService, getUrlByShortCode, getUrlStats } from "../services/url.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createShortUrl = asyncHandler(async(req, res, next)=>{
@@ -30,4 +30,19 @@ export const getUrlStatsController = asyncHandler(async(req, res)=>{
         data: urlStats
     })
     
+})
+
+export const getMyUrlsController = asyncHandler(async(req, res)=>{
+    const userId = req.user.userId;
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 10);
+    const sortBy = req.query.sortBy || 'createdAt';
+    const order = req.query.order === 'asc'? 1 : -1;
+
+    const urlData = await getMyUrlsService({userId, page, limit, sortBy, order});
+
+    res.status(200).json({
+        message:"Success",
+        urls: urlData
+    })
 })
