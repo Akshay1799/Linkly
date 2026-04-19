@@ -1,6 +1,6 @@
-import {refreshAccessTokenService, registerUserService, userLoginService} from "../services/auth.service.js";
+import {logoutService, refreshAccessTokenService, registerUserService, userLoginService} from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import config from '../config/index.js'
+import {config} from '../config/index.js'
 
 export const registerUser = asyncHandler(async(req, res)=>{
     const user = await registerUserService(req.body);
@@ -50,5 +50,19 @@ export const refreshToken = asyncHandler(async(req, res)=>{
     })
     .status(200).json({
         message: "Access token refreshed"
+    })
+})
+
+export const logout = asyncHandler(async(req, res)=>{
+    const refreshToken = req.cookies.refreshToken;
+
+    await logoutService(refreshToken);
+
+    res
+    .clearCookie("accessToken")
+    .clearCookie("refreshToken")
+    .status(200)
+    .json({
+        message: "logged out successfully!"
     })
 })
