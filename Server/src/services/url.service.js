@@ -125,3 +125,9 @@ export const getMyUrlsService = async({ userId, page, limit, sortBy, order })=>{
   const urls = await Url.find({ userId }).sort(sort).skip(skip).limit(limit);
   return urls;
 }
+
+export const deleteUrlService = async({id, userId})=>{
+  const url = await Url.findOneAndDelete({_id:id,  userId:userId});
+  if(!url) throw new AppError(404, "url does not exists")
+  return url;
+}
