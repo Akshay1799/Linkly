@@ -12,7 +12,7 @@ router.post('/', protect, validateRequest(urlSchema), createShortUrl);
 router.get('/:shortCode/stats', getUrlStatsController)
 router.get('/:shortCode', redirectToOriginalUrl)
 router.get('/my', getMyUrlsController)
-router.get('/:id', protect, deleteUrl)
+router.delete('/:id', protect, deleteUrl)
 
 
 export default router;
