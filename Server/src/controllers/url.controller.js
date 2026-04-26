@@ -1,4 +1,4 @@
-import { createShortUrlService, deleteUrlService, getMyUrlsService, getUrlByShortCode, getUrlStats } from "../services/url.service.js";
+import { createShortUrlService, deleteUrlService, getMyUrlsService, getUrlByShortCode, getUrlStats, updateUrlService } from "../services/url.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createShortUrl = asyncHandler(async(req, res, next)=>{
@@ -57,4 +57,15 @@ export const deleteUrl = asyncHandler(async(req, res)=>{
         message:"Url deleted successfully!"
     })
 
+})
+
+export const updateUrl = asyncHandler(async(req, res)=>{
+    const id = req.params.id;
+    const userId = req.user.userId;
+    const data = req.body;
+    const updatedUrl = await updateUrlService({id, userId, data})
+
+    res.status(200).json({
+        message: "Url updated successfully!"
+    })
 })

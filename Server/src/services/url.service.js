@@ -131,3 +131,26 @@ export const deleteUrlService = async({id, userId})=>{
   if(!url) throw new AppError(404, "url does not exists")
   return url;
 }
+
+export const updateUrlService = async({id, userId, data})=>{
+  const allowedFields = ["originalUrl", "shortCode"];
+  const filteredData = {};
+
+  for(let key in data){
+    if(allowedFields.includes(key)){
+      filteredData[key] = data[key]
+    }
+  }
+  if(filteredData.shortCode){
+    const existing = await Url.findOne({shortCode: filteredData.shortCode});
+
+    if(existing && existing._id.toString() !== id){
+      throw new AppError(409, "Short code is already in use!")
+    }
+  }
+  const updatedUrl = await Url.findOneAndUpdate({_id:id,  userId:userId}, filteredData, {new:true});
+
+  if(!updatedUrl) throw new AppError(404, "url not found!")
+  return updatedUrl;
+}
+
