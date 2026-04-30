@@ -5,9 +5,9 @@ import authRoutes from "./routes/auth.routes.js"
 import { errorHandler } from "./utils/error.middleware.js";
 import cookieParse from "cookie-parser"
 import { globalLimiter } from "./middlewares/rateLimiter.js";
-import cors from "cors";
 import { config } from "./config/index.js";
-
+import cors from "cors";
+import helmet from "helmet";
 
 export const app = express();
 
@@ -20,6 +20,11 @@ app.use(
         credentials: true
     })
 )
+
+app.use(helmet({
+    contentSecurityPolicy: false,
+}))
+
 
 app.use(globalLimiter)
 
