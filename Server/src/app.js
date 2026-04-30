@@ -5,11 +5,20 @@ import authRoutes from "./routes/auth.routes.js"
 import { errorHandler } from "./utils/error.middleware.js";
 import cookieParse from "cookie-parser"
 import { globalLimiter } from "./middlewares/rateLimiter.js";
+import cors from "cors";
+
 
 export const app = express();
 
 app.use(express.json());
 app.use(cookieParse());
+
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true
+    })
+)
 
 app.use(globalLimiter)
 

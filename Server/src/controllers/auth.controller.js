@@ -1,6 +1,7 @@
 import {logoutService, refreshAccessTokenService, registerUserService, userLoginService} from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {config} from '../config/index.js'
+import { cookieOptions } from "../utils/cookieOptions.js";
 
 export const registerUser = asyncHandler(async(req, res)=>{
     const user = await registerUserService(req.body);
@@ -16,16 +17,8 @@ export const login = asyncHandler(async(req, res)=>{
     const {accessToken, refreshToken, user} = result;
 
     res
-    .cookie("accessToken", accessToken , {
-        httpOnly: true,
-        secure: config.env === "production",
-        sameSite: "strict"
-    })
-    .cookie("refreshToken", refreshToken , {
-        httpOnly: true,
-        secure: config.env === "production",
-        sameSite: "strict"
-    })
+    .cookie("accessToken", accessToken , cookieOptions)
+    .cookie("refreshToken", refreshToken , cookieOptions)
     .status(200).json({
         message: "Logged in successfully!",
         data: user
@@ -38,16 +31,8 @@ export const refreshToken = asyncHandler(async(req, res)=>{
 
     const {accessToken, refreshToken} = await refreshAccessTokenService(incomingToken);
 
-    res.cookie("accessToken", accessToken, {
-        httpOnly:true,
-        secure: config.env === "production",
-        sameSite:"strict"
-    })
-    .cookie("refreshToken", refreshToken, {
-        httpOnly:true,
-        secure: config.env === "production",
-        sameSite:"strict"
-    })
+    res.cookie("accessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions)
     .status(200).json({
         message: "Access token refreshed"
     })
@@ -59,8 +44,8 @@ export const logout = asyncHandler(async(req, res)=>{
     await logoutService(refreshToken);
 
     res
-    .clearCookie("accessToken")
-    .clearCookie("refreshToken")
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
     .status(200)
     .json({
         message: "logged out successfully!"
