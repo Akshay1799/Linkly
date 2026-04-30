@@ -6,6 +6,7 @@ import { errorHandler } from "./utils/error.middleware.js";
 import cookieParse from "cookie-parser"
 import { globalLimiter } from "./middlewares/rateLimiter.js";
 import cors from "cors";
+import { config } from "./config/index.js";
 
 
 export const app = express();
@@ -15,7 +16,7 @@ app.use(cookieParse());
 
 app.use(
     cors({
-        origin: "http://localhost:3000",
+        origin: config.clientUrl,
         credentials: true
     })
 )
