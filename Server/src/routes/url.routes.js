@@ -18,7 +18,7 @@ router.get('/:shortCode/stats', getUrlStatsController)
 router.get('/:shortCode', redirectToOriginalUrl)
 
 router.delete('/:id', protect, deleteUrl)
-router.put('/:id', protect, updateUrl)
+router.patch('/:id', protect, updateUrl)
 
 
 export default router;
