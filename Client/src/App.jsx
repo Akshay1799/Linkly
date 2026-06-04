@@ -1,12 +1,11 @@
 import './App.css'
-import Login from './pages/Login'
+import { RouterProvider } from 'react-router-dom'
+import router from './routes/Routes'
 
 function App() {
 
   return (
-    <>
-      <Login/>
-    </>
+    <RouterProvider router={router} />
   )
 }
 
