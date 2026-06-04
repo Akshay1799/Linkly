@@ -29,12 +29,13 @@ export const login = asyncHandler(async(req, res)=>{
 export const refreshToken = asyncHandler(async(req, res)=>{
     const incomingToken = req.cookies.refreshToken;
 
-    const {accessToken, refreshToken} = await refreshAccessTokenService(incomingToken);
+    const {accessToken, refreshToken, user} = await refreshAccessTokenService(incomingToken);
 
     res.cookie("accessToken", accessToken, cookieOptions)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .status(200).json({
-        message: "Access token refreshed"
+        message: "Access token refreshed",
+        user
     })
 })
 
