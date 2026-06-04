@@ -8,7 +8,7 @@ export const registerUser = asyncHandler(async(req, res)=>{
 
     res.status(201).json({
         message: "User registered successfully",
-        data: user
+        user
     });
 })
 
@@ -21,7 +21,7 @@ export const login = asyncHandler(async(req, res)=>{
     .cookie("refreshToken", refreshToken , cookieOptions)
     .status(200).json({
         message: "Logged in successfully!",
-        data: user
+        user
     })
     
 })

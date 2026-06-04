@@ -1,22 +1,22 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import authApi from "../api/auth.api";
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-  const value = {
-    user,
-    isAuthenticated,
-    loading,
-  };
+    const value = {
+        user,
+        isAuthenticated,
+        loading,
+    };
 
-    const refreshSession = async () => {
+    const restoreSession = async () => {
         try {
-        const data = await authApi.refreshSession();
+            const data = await authApi.refreshSession();
             setUser(data.user);
             setIsAuthenticated(true);
         } catch (error) {
@@ -27,10 +27,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    useEffect(() => {
+        restoreSession();
+    }, []);
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
